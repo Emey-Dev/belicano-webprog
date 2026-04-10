@@ -1,4 +1,5 @@
 import Button from "../components/Button";
+import Footer from "../components/Footer";
 
 const HomePage = () => {
   return (
@@ -26,7 +27,7 @@ const HomePage = () => {
             <div className="rounded-3xl border-2 border-dashed border-zinc-300 bg-zinc-100 p-1">
               <div className="flex h-70 w-70 items-center justify-center rounded-[1.25rem] bg-zinc-200">
                 <img
-                  src="/ProfilePic.jpg"
+                  src="src/assets/images/ProfilePic.jpg"
                   alt="Mark Antonio A. Belicano"
                   className="h-70 w-70 rounded-[1.25rem] object-cover"
                 />
@@ -88,7 +89,7 @@ const HomePage = () => {
           <article className="rounded-3xl border-2 border-zinc-900 bg-zinc-100 p-4">
             <div className="flex aspect-4/3 items-center justify-center rounded-[1.25rem] bg-zinc-200 overflow-hidden">
               <img
-                src="/SoGood.avif"
+                src="src/assets/images/SoGood.avif"
                 alt="Feature Card One"
                 className="h-full w-full object-cover"
               />
@@ -107,7 +108,7 @@ const HomePage = () => {
           <article className="rounded-3xl border-2 border-zinc-900 bg-zinc-100 p-4">
             <div className="flex aspect-4/3 items-center justify-center rounded-[1.25rem] bg-zinc-200 overflow-hidden">
               <img
-                src="/Yellow.avif"
+                src="src/assets/images/Yellow.avif"
                 alt="Feature Card Two"
                 className="h-full w-full object-cover"
               />
@@ -126,7 +127,7 @@ const HomePage = () => {
           <article className="rounded-3xl border-2 border-zinc-900 bg-zinc-100 p-4">
             <div className="flex aspect-4/3 items-center justify-center rounded-[1.25rem] bg-zinc-200 overflow-hidden">
               <img
-                src="/North.avif"
+                src="src/assets/images/North.avif"
                 alt="Feature Card Three"
                 className="h-full w-full object-cover"
               />
@@ -143,6 +144,8 @@ const HomePage = () => {
           </article>
         </div>
       </section>
+
+      <Footer />
     </div>
   );
 };

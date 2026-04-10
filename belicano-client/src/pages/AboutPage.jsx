@@ -1,4 +1,5 @@
 import Button from "../components/Button";
+import Footer from "../components/Footer";
 
 const AboutPage = () => {
   return (
@@ -9,7 +10,7 @@ const AboutPage = () => {
             <div className="rounded-3xl border-2 border-dashed border-zinc-300 bg-zinc-100 p-1">
               <div className="flex h-70 w-70 items-center justify-center rounded-[1.25rem] bg-zinc-200">
                 <img
-                  src="/ProfilePic.jpg"
+                  src="src/assets/images/ProfilePic.jpg"
                   alt="Mark Antonio A. Belicano"
                   className="h-70 w-70 rounded-[1.25rem] object-cover"
                 />
@@ -131,7 +132,7 @@ const AboutPage = () => {
             <div className="mt-5 grid gap-4 sm:grid-cols-2">
               <div className="flex aspect-video items-center justify-center rounded-[1.25rem] overflow-hidden">
                 <img
-                  src="/StardewValley.jpg"
+                  src="src/assets/images/StardewValley.jpg"
                   alt="Stardew Valley"
                   className="h-full w-full object-cover"
                 />
@@ -139,7 +140,7 @@ const AboutPage = () => {
 
               <div className="flex aspect-video items-center justify-center rounded-[1.25rem] overflow-hidden">
                 <img
-                  src="/AQWorlds.jpg"
+                  src="src/assets/images/AQWorlds.jpg"
                   alt="AQWorlds"
                   className="h-full w-full object-cover"
                 />
@@ -147,7 +148,7 @@ const AboutPage = () => {
 
               <div className="flex aspect-video items-center justify-center rounded-[1.25rem] overflow-hidden">
                 <img
-                  src="/Dave.avif"
+                  src="src/assets/images/Dave.avif"
                   alt="Dave"
                   className="h-full w-full object-cover"
                 />
@@ -155,7 +156,7 @@ const AboutPage = () => {
 
               <div className="flex aspect-video items-center justify-center rounded-[1.25rem] overflow-hidden">
                 <img
-                  src="/Terraria.jpg"
+                  src="src/assets/images/Terraria.jpg"
                   alt="Terraria"
                   className="h-full w-full object-cover"
                 />
@@ -165,6 +166,8 @@ const AboutPage = () => {
           </div>
         </div>
       </section>
+
+      <Footer />
     </div>
   );
 };

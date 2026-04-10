@@ -23,7 +23,7 @@ const NavBar = () => {
       <div className="mx-auto flex max-w-6xl h-20 items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
         <NavLink to="/" className="group flex items-center gap-3">
           <img
-            src="/Logo.svg"
+            src="src/assets/images/Logo.svg"
             alt="Logo"
             className="h-22 w-auto object-contain"
           />

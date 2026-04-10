@@ -1,6 +1,7 @@
 import Button from "../components/Button";
+import Footer from "../components/Footer";
 
-const ArticlePage = () => {
+const ArticleListPage = () => {
   return (
     <div className="flex w-full flex-col gap-6">
       <section className="border-y-2 border-zinc-900 bg-zinc-50 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
@@ -24,7 +25,7 @@ const ArticlePage = () => {
             Featured Articles
           </p>
           <h2 className="mt-2 text-2xl font-semibold text-zinc-900">
-           My most used programming languages.
+            My most used programming languages.
           </h2>
         </div>
 
@@ -32,7 +33,7 @@ const ArticlePage = () => {
           <article className="rounded-3xl border-2 border-zinc-900 bg-zinc-100 p-4">
             <div className="flex aspect-4/3 items-center justify-center rounded-[1.25rem] bg-zinc-200 overflow-hidden">
               <img
-                src="/React.png"
+                src="src/assets/images/React.png"
                 alt="React.js"
                 className="h-full w-full object-cover"
               />
@@ -49,13 +50,15 @@ const ArticlePage = () => {
               efficiently updating the UI when data changes, making it ideal for
               dynamic applications like dashboards and single-page apps.
             </p>
-            <Button className="mt-4">Read More</Button>
+            <Button to="/articles/react" className="mt-4">
+              Read More
+            </Button>
           </article>
 
           <article className="rounded-3xl border-2 border-zinc-900 bg-zinc-100 p-4">
             <div className="flex aspect-4/3 items-center justify-center rounded-[1.25rem] bg-zinc-200 overflow-hidden">
               <img
-                src="/Java.avif"
+                src="src/assets/images/Java.avif"
                 alt="Java"
                 className="h-full w-full object-cover"
               />
@@ -69,13 +72,15 @@ const ArticlePage = () => {
               used for building a wide range of applications, including Android
               apps and backend systems.
             </p>
-            <Button className="mt-4">Read More</Button>
+            <Button to="/articles/java" className="mt-4">
+              Read More
+            </Button>
           </article>
 
           <article className="rounded-3xl border-2 border-zinc-900 bg-zinc-100 p-4">
             <div className="flex aspect-4/3 items-center justify-center rounded-[1.25rem] bg-zinc-200 overflow-hidden">
               <img
-                src="/Css.png"
+                src="src/assets/images/Css.png"
                 alt="CSS"
                 className="h-full w-full object-cover"
               />
@@ -89,13 +94,15 @@ const ArticlePage = () => {
               pages, controlling things like colors, fonts, spacing, and layout
               to make websites visually appealing and consistent.
             </p>
-            <Button className="mt-4">Read More</Button>
+            <Button to="/articles/css" className="mt-4">
+              Read More
+            </Button>
           </article>
 
           <article className="rounded-3xl border-2 border-zinc-900 bg-zinc-100 p-4">
             <div className="flex aspect-4/3 items-center justify-center rounded-[1.25rem] bg-zinc-200 overflow-hidden">
               <img
-                src="/Flutter.jpg"
+                src="src/assets/images/Flutter.jpg"
                 alt="Flutter"
                 className="h-full w-full object-cover"
               />
@@ -112,12 +119,16 @@ const ArticlePage = () => {
               apps for both Android and iOS using a single codebase, focusing on
               fast performance and smooth, responsive user interfaces.
             </p>
-            <Button className="mt-4">Read More</Button>
+            <Button to="/articles/flutter" className="mt-4">
+              Read More
+            </Button>
           </article>
         </div>
       </section>
+
+      <Footer />
     </div>
   );
 };
 
-export default ArticlePage;
+export default ArticleListPage;
