@@ -1,5 +1,4 @@
 import Button from "../../components/Button";
-import Footer from "../../components/Footer";
 
 const ArticleListPage = () => {
   return (
@@ -125,8 +124,6 @@ const ArticleListPage = () => {
           </article>
         </div>
       </section>
-
-      <Footer />
     </div>
   );
 };

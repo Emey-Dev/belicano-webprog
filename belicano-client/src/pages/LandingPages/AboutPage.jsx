@@ -1,5 +1,4 @@
 import Button from "../../components/Button";
-import Footer from "../../components/Footer";
 
 const AboutPage = () => {
   return (
@@ -166,8 +165,6 @@ const AboutPage = () => {
           </div>
         </div>
       </section>
-
-      <Footer />
     </div>
   );
 };

@@ -1,5 +1,4 @@
 import Button from "../../components/Button";
-import Footer from "../../components/Footer";
 
 const HomePage = () => {
   return (
@@ -144,8 +143,6 @@ const HomePage = () => {
           </article>
         </div>
       </section>
-
-      <Footer />
     </div>
   );
 };
