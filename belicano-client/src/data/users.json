@@ -1,0 +1,81 @@
+
+[
+  {
+    "firstName": "Alicia",
+    "lastName": "Reyes",
+    "age": "28",
+    "gender": "female",
+    "contactNumber": "09123456789",
+    "email": "alicia.reyes@roles.dev",
+    "role": "admin",
+    "username": "alicia123",
+    "password": "Alicia123!",
+    "address": "Sampaloc, Manila, Metro Manila",
+    "isActive": true
+  },
+  {
+    "firstName": "Marco",
+    "lastName": "Santos",
+    "age": "35",
+    "gender": "male",
+    "contactNumber": "09987654321",
+    "email": "marco.santos@roles.dev",
+    "role": "lower",
+    "username": "marco123",
+    "password": "Marco123!",
+    "address": "Tondo, Manila, Metro Manila",
+    "isActive": true
+  },
+  {
+    "firstName": "Bianca",
+    "lastName": "Cruz",
+    "age": "26",
+    "gender": "female",
+    "contactNumber": "09123456789",
+    "email": "bianca.cruz@roles.dev",
+    "role": "editor",
+    "username": "bianca123",
+    "password": "Bianca123!",
+    "address": "Quezon City, Metro Manila",
+    "isActive": true
+  },
+  {
+    "firstName": "Nathan",
+    "lastName": "Diaz",
+    "age": "31",
+    "gender": "male",
+    "contactNumber": "09123456789",
+    "email": "nathan.diaz@roles.dev",
+    "role": "viewer",
+    "username": "nathan123",
+    "password": "Nathan123!",
+    "address": "Pasig City, Metro Manila",
+    "isActive": true
+  },
+  {
+    "firstName": "Jasmine",
+    "lastName": "Garcia",
+    "age": "29",
+    "gender": "female",
+    "contactNumber": "09123456789",
+    "email": "jasmine.garcia@roles.dev",
+    "role": "editor",
+    "username": "jasmine123",
+    "password": "Jasmine123!",
+    "address": "Makati City, Metro Manila",
+    "isActive": true
+  },
+  {
+    "firstName": "Ethan",
+    "lastName": "Lopez",
+    "age": "33",
+    "gender": "male",
+    "contactNumber": "09123456789",
+    "email": "ethan.lopez@roles.dev",
+    "role": "admin",
+    "username": "ethan123",
+    "password": "Ethan123!",
+    "address": "Rizal, Metro Manila",
+    "isActive": true
+  }
+]
