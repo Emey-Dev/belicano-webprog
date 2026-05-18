@@ -9,6 +9,8 @@ export const mapArticleFromApi = (a) => ({
   ...a,
   content: Array.isArray(a.content) ? [...a.content] : [],
   description: String(a.content?.[0] ?? '').trim(),
+  isFeatured: a.isFeatured ?? false,
+  isActive: a.isActive ?? true,
 });
 
 export const fetchArticles = () => API.get('/');
@@ -16,4 +18,3 @@ export const fetchArticleBySlug = (slug) => API.get(`/slug/${slug}`);
 export const createArticle = (article) => API.post('/', article);
 export const updateArticle = (id, article) => API.put(`/${id}`, article);
 export const deleteArticle = (id) => API.delete(`/${id}`);
-

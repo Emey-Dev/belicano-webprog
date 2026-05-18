@@ -65,15 +65,21 @@ const ArticleListPage = () => {
             {articles.map((article) => (
               <article
                 key={article._id || article.name}
-                className="rounded-3xl border-2 border-zinc-900 bg-zinc-100 p-4 flex flex-col"
+                className="relative rounded-3xl border-2 border-zinc-900 bg-zinc-100 p-4 flex flex-col"
               >
+                {article.isFeatured && (
+                  <span className="absolute top-3 right-3 rounded-full bg-zinc-900 px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.2em] text-zinc-50">
+                    Featured
+                  </span>
+                )}
                 <div className="flex aspect-4/3 items-center justify-center rounded-[1.25rem] bg-zinc-200 overflow-hidden">
                   <img
                     src={article.imageUrl}
                     alt={article.title}
                     className="h-full w-full object-cover"
                     onError={(e) => {
-                      e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300'%3E%3Crect fill='%23ddd' width='400' height='300'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%23999' font-size='24'%3EImage not found%3C/text%3E%3C/svg%3E";
+                      e.target.src =
+                        "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300'%3E%3Crect fill='%23ddd' width='400' height='300'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%23999' font-size='24'%3EImage not found%3C/text%3E%3C/svg%3E";
                     }}
                   />
                 </div>

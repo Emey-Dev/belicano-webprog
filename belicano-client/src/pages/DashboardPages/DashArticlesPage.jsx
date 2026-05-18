@@ -31,12 +31,13 @@ import {
   mapArticleFromApi,
 } from "../../services/ArticleService";
 
-
 const blankForm = {
   name: "",
   title: "",
   imageUrl: "",
   content: [],
+  isFeatured: false,
+  isActive: true,
 };
 
 const truncate = (text, max) => {
@@ -111,8 +112,10 @@ const DashArticlesPage = () => {
       setForm({
         name: article.name,
         title: article.title,
-        imageUrl: article.imageUrl,
+        imageUrl: article.imageUrl ?? "",
         content: Array.isArray(article.content) ? article.content : [],
+        isFeatured: article.isFeatured ?? false,
+        isActive: article.isActive ?? true,
       });
       setContentRaw(
         Array.isArray(article.content) ? article.content.join("\n\n") : ""
@@ -132,30 +135,22 @@ const DashArticlesPage = () => {
   };
 
   const handleChange = ({ target: { name, value } }) => {
-    setForm((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setForm((prev) => ({ ...prev, [name]: value }));
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
     }
   };
 
+  const handleToggleField = (name) => {
+    setForm((prev) => ({ ...prev, [name]: !prev[name] }));
+  };
+
   const validate = () => {
     const nextErrors = {};
-
-    if (!form.name.trim()) {
-      nextErrors.name = "Article slug is required.";
-    }
-
-    if (!form.title.trim()) {
-      nextErrors.title = "Title is required.";
-    }
-
-    if (!form.content || form.content.length === 0) {
+    if (!form.name.trim()) nextErrors.name = "Article slug is required.";
+    if (!form.title.trim()) nextErrors.title = "Title is required.";
+    if (!form.content || form.content.length === 0)
       nextErrors.content = "Article content is required.";
-    }
-
     return nextErrors;
   };
 
@@ -173,6 +168,8 @@ const DashArticlesPage = () => {
         title: form.title.trim(),
         imageUrl: form.imageUrl.trim(),
         content: form.content,
+        isFeatured: form.isFeatured,
+        isActive: form.isActive,
       };
 
       if (modal.id) {
@@ -209,18 +206,8 @@ const DashArticlesPage = () => {
   });
 
   const columns = [
-    {
-      field: "name",
-      headerName: "Slug",
-      flex: 1,
-      minWidth: 150,
-    },
-    {
-      field: "title",
-      headerName: "Title",
-      flex: 1,
-      minWidth: 180,
-    },
+    { field: "name", headerName: "Slug", flex: 1, minWidth: 150 },
+    { field: "title", headerName: "Title", flex: 1, minWidth: 180 },
     {
       field: "description",
       headerName: "Description",
@@ -252,6 +239,16 @@ const DashArticlesPage = () => {
           }}
         />
       ),
+    },
+    {
+      field: "isFeatured",
+      headerName: "Featured",
+      minWidth: 110,
+      sortable: false,
+      renderCell: ({ row }) =>
+        row.isFeatured ? (
+          <Chip size="small" label="Featured" color="primary" variant="filled" />
+        ) : null,
     },
     {
       field: "status",
@@ -362,12 +359,10 @@ const DashArticlesPage = () => {
               <MenuItem value="active">Active</MenuItem>
               <MenuItem value="inactive">Inactive</MenuItem>
             </TextField>
-
             <Button variant="outlined" size="small" onClick={resetFilters}>
               Reset Filters
             </Button>
           </Stack>
-
           <Typography variant="body2" sx={{ color: "text.secondary" }}>
             Showing {filteredArticles.length} of {articles.length} articles
           </Typography>
@@ -448,6 +443,29 @@ const DashArticlesPage = () => {
                 error={Boolean(errors.content)}
                 helperText={errors.content || "Each paragraph separated by a blank line"}
               />
+
+              <Stack direction="row" spacing={4} sx={{ pt: 1 }}>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={form.isFeatured}
+                      onChange={() => handleToggleField("isFeatured")}
+                      color="primary"
+                    />
+                  }
+                  label={`Featured Article: ${form.isFeatured ? "Yes" : "No"}`}
+                />
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={form.isActive}
+                      onChange={() => handleToggleField("isActive")}
+                      color="success"
+                    />
+                  }
+                  label={`Article Status: ${form.isActive ? "Active" : "Inactive"}`}
+                />
+              </Stack>
             </Stack>
           </DialogContent>
           <DialogActions sx={{ px: 3, py: 2 }}>

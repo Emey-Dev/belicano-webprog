@@ -1,6 +1,31 @@
+import { useState, useEffect } from "react";
 import Button from "../../components/Button";
+import { fetchArticles, mapArticleFromApi } from "../../services/ArticleService";
 
 const HomePage = () => {
+  const [featuredArticles, setFeaturedArticles] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadFeatured = async () => {
+      try {
+        setLoading(true);
+        const { data } = await fetchArticles();
+        const featured = (data?.articles ?? [])
+          .filter((a) => a.isActive && a.isFeatured)
+          .map(mapArticleFromApi);
+        setFeaturedArticles(featured);
+      } catch (err) {
+        console.error("Failed to load featured articles:", err);
+        setFeaturedArticles([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadFeatured();
+  }, []);
+
   return (
     <div className="flex w-full flex-col gap-6">
       <section className="border-y-2 border-zinc-900 bg-zinc-50 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
@@ -42,7 +67,7 @@ const HomePage = () => {
             KPI Section
           </p>
           <h2 className="mt-2 text-2xl font-semibold text-zinc-900">
-            Quick overview 
+            Quick overview
           </h2>
         </div>
 
@@ -56,7 +81,7 @@ const HomePage = () => {
           <div className="rounded-3xl border-2 border-zinc-900 bg-zinc-100 p-5">
             <p className="text-2xl font-bold text-zinc-900">4</p>
             <p className="mt-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-zinc-500">
-              Porjects
+              Projects
             </p>
           </div>
           <div className="rounded-3xl border-2 border-zinc-900 bg-zinc-100 p-5">
@@ -77,71 +102,55 @@ const HomePage = () => {
       <section className="border-y-2 border-zinc-900 bg-zinc-50 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
         <div className="mb-6">
           <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-zinc-500">
-            Featured Musics
+            Featured Articles
           </p>
           <h2 className="mt-2 text-2xl font-semibold text-zinc-900">
-            My daily music picks
+            {loading ? "Loading articles..." : "Highlighted reads"}
           </h2>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-3">
-          <article className="rounded-3xl border-2 border-zinc-900 bg-zinc-100 p-4">
-            <div className="flex aspect-4/3 items-center justify-center rounded-[1.25rem] bg-zinc-200 overflow-hidden">
-              <img
-                src="/assets/images/SoGood.avif"
-                alt="Feature Card One"
-                className="h-full w-full object-cover"
-              />
-            </div>
-            <h3 className="mt-4 text-lg font-semibold text-zinc-900">
-              So Good
-            </h3>
-            <p className="mt-3 text-sm leading-6 text-zinc-600">
-              - Weston State
-            </p>
-            <Button className="mt-4" variant="primary">
-              View More
-            </Button>
-          </article>
-
-          <article className="rounded-3xl border-2 border-zinc-900 bg-zinc-100 p-4">
-            <div className="flex aspect-4/3 items-center justify-center rounded-[1.25rem] bg-zinc-200 overflow-hidden">
-              <img
-                src="/assets/images/Yellow.avif"
-                alt="Feature Card Two"
-                className="h-full w-full object-cover"
-              />
-            </div>
-            <h3 className="mt-4 text-lg font-semibold text-zinc-900">
-              Yellow
-            </h3>
-            <p className="mt-3 text-sm leading-6 text-zinc-600">
-              - Coldplay
-            </p>
-            <Button className="mt-4" variant="primary">
-              View More
-            </Button>
-          </article>
-
-          <article className="rounded-3xl border-2 border-zinc-900 bg-zinc-100 p-4">
-            <div className="flex aspect-4/3 items-center justify-center rounded-[1.25rem] bg-zinc-200 overflow-hidden">
-              <img
-                src="/assets/images/North.avif"
-                alt="Feature Card Three"
-                className="h-full w-full object-cover"
-              />
-            </div>
-            <h3 className="mt-4 text-lg font-semibold text-zinc-900">
-              North
-            </h3>
-            <p className="mt-3 text-sm leading-6 text-zinc-600">
-              - Fly By Midnight
-            </p>
-            <Button className="mt-4" variant="primary">
-              View More
-            </Button>
-          </article>
-        </div>
+        {!loading && featuredArticles.length === 0 ? (
+          <div className="rounded-lg bg-zinc-100 border-2 border-zinc-200 p-6 text-center text-zinc-500 text-sm">
+            No featured articles yet.
+          </div>
+        ) : (
+          <div className="grid gap-4 md:grid-cols-3">
+            {featuredArticles.map((article) => (
+              <article
+                key={article._id || article.name}
+                className="rounded-3xl border-2 border-zinc-900 bg-zinc-100 p-4 flex flex-col"
+              >
+                <div className="flex aspect-4/3 items-center justify-center rounded-[1.25rem] bg-zinc-200 overflow-hidden">
+                  {article.imageUrl ? (
+                    <img
+                      src={article.imageUrl}
+                      alt={article.title}
+                      className="h-full w-full object-cover"
+                      onError={(e) => {
+                        e.target.src =
+                          "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300'%3E%3Crect fill='%23ddd' width='400' height='300'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%23999' font-size='24'%3ENo Image%3C/text%3E%3C/svg%3E";
+                      }}
+                    />
+                  ) : (
+                    <span className="text-sm text-zinc-400">No image</span>
+                  )}
+                </div>
+                <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.24em] text-zinc-500 truncate">
+                  {article.name}
+                </p>
+                <h3 className="mt-2 text-lg font-semibold text-zinc-900 line-clamp-2">
+                  {article.title}
+                </h3>
+                <p className="mt-3 text-sm leading-6 text-zinc-600 flex-grow line-clamp-3">
+                  {article.description || "No description available."}
+                </p>
+                <Button to={`/articles/${article.name}`} className="mt-4" variant="primary">
+                  Read More
+                </Button>
+              </article>
+            ))}
+          </div>
+        )}
       </section>
     </div>
   );
