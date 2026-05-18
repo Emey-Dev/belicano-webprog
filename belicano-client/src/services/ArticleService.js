@@ -15,6 +15,7 @@ export const mapArticleFromApi = (a) => ({
 
 export const fetchArticles = () => API.get('/');
 export const fetchArticleBySlug = (slug) => API.get(`/slug/${slug}`);
+export const uploadArticleImage = (imageData) => API.post('/upload-image', { imageData });
 export const createArticle = (article) => API.post('/', article);
 export const updateArticle = (id, article) => API.put(`/${id}`, article);
 export const deleteArticle = (id) => API.delete(`/${id}`);

@@ -23,11 +23,14 @@ import { useTheme } from "@mui/material/styles";
 import SearchIcon from "@mui/icons-material/Search";
 import ClearIcon from "@mui/icons-material/Clear";
 import FilterList from "@mui/icons-material/FilterList";
+import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
+import DeleteIcon from "@mui/icons-material/Delete";
 import { DataGrid } from "@mui/x-data-grid";
 import {
   fetchArticles,
   createArticle,
   updateArticle,
+  uploadArticleImage,
   mapArticleFromApi,
 } from "../../services/ArticleService";
 
@@ -60,6 +63,10 @@ const DashArticlesPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
   const [contentRaw, setContentRaw] = useState("");
+  const [imageFileName, setImageFileName] = useState("");
+  const [imagePreviewUrl, setImagePreviewUrl] = useState("");
+  const [imageUploadData, setImageUploadData] = useState("");
+  const [saving, setSaving] = useState(false);
 
   const loadArticles = async () => {
     try {
@@ -120,9 +127,15 @@ const DashArticlesPage = () => {
       setContentRaw(
         Array.isArray(article.content) ? article.content.join("\n\n") : ""
       );
+      setImageFileName("");
+      setImagePreviewUrl(article.imageUrl ?? "");
+      setImageUploadData("");
     } else {
       setForm(blankForm);
       setContentRaw("");
+      setImageFileName("");
+      setImagePreviewUrl("");
+      setImageUploadData("");
     }
     setErrors({});
   };
@@ -131,6 +144,9 @@ const DashArticlesPage = () => {
     setModal({ open: false, id: null });
     setForm(blankForm);
     setContentRaw("");
+    setImageFileName("");
+    setImagePreviewUrl("");
+    setImageUploadData("");
     setErrors({});
   };
 
@@ -143,6 +159,49 @@ const DashArticlesPage = () => {
 
   const handleToggleField = (name) => {
     setForm((prev) => ({ ...prev, [name]: !prev[name] }));
+  };
+
+  const handleImageFileChange = (event) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      setErrors((prev) => ({
+        ...prev,
+        imageUrl: "Please choose a valid image file.",
+      }));
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = String(reader.result ?? "");
+      setImagePreviewUrl(dataUrl);
+      setImageUploadData(dataUrl);
+      setImageFileName(file.name);
+      if (errors.imageUrl) {
+        setErrors((prev) => ({ ...prev, imageUrl: "" }));
+      }
+    };
+    reader.onerror = () => {
+      setErrors((prev) => ({
+        ...prev,
+        imageUrl: "Unable to read this image. Please try another file.",
+      }));
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const clearImage = () => {
+    setForm((prev) => ({ ...prev, imageUrl: "" }));
+    setImageFileName("");
+    setImagePreviewUrl("");
+    setImageUploadData("");
+    if (errors.imageUrl) {
+      setErrors((prev) => ({ ...prev, imageUrl: "" }));
+    }
   };
 
   const validate = () => {
@@ -163,10 +222,18 @@ const DashArticlesPage = () => {
     }
 
     try {
+      setSaving(true);
+      let imageUrl = form.imageUrl.trim();
+
+      if (imageUploadData) {
+        const { data } = await uploadArticleImage(imageUploadData);
+        imageUrl = data?.imageUrl ?? "";
+      }
+
       const articleData = {
         name: form.name.trim(),
         title: form.title.trim(),
-        imageUrl: form.imageUrl.trim(),
+        imageUrl,
         content: form.content,
         isFeatured: form.isFeatured,
         isActive: form.isActive,
@@ -181,7 +248,9 @@ const DashArticlesPage = () => {
       closeModal();
     } catch (error) {
       console.error("Error saving article:", error);
-      setApiError("Failed to save article. Please try again.");
+      setApiError(error.response?.data?.message || "Failed to save article. Please try again.");
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -222,22 +291,24 @@ const DashArticlesPage = () => {
       filterable: false,
       width: 130,
       renderCell: ({ row }) => (
-        <Box
-          component="img"
-          src={row.imageUrl}
-          alt=""
-          sx={{
-            height: 40,
-            maxWidth: 100,
-            objectFit: "cover",
-            borderRadius: 1,
-            display: "block",
-            mt: 0.5,
-          }}
-          onError={(e) => {
-            e.target.style.display = "none";
-          }}
-        />
+        row.imageUrl ? (
+          <Box
+            component="img"
+            src={row.imageUrl}
+            alt=""
+            sx={{
+              height: 40,
+              maxWidth: 100,
+              objectFit: "cover",
+              borderRadius: 1,
+              display: "block",
+              mt: 0.5,
+            }}
+            onError={(e) => {
+              e.target.style.display = "none";
+            }}
+          />
+        ) : null
       ),
     },
     {
@@ -415,12 +486,73 @@ const DashArticlesPage = () => {
                 })}
               />
               <TextField {...fieldProps("title", "Title")} />
-              <TextField
-                {...fieldProps("imageUrl", "Image URL (optional)", {
-                  placeholder: "/assets/images/article-image.jpg",
-                  helperText: "Public path to image in public/assets/images/ folder",
-                })}
-              />
+              <Box>
+                <Stack
+                  direction={{ xs: "column", sm: "row" }}
+                  spacing={1.5}
+                  alignItems={{ xs: "stretch", sm: "center" }}
+                >
+                  <Button
+                    component="label"
+                    variant="outlined"
+                    startIcon={<AddPhotoAlternateIcon />}
+                  >
+                    Choose Image
+                    <input
+                      type="file"
+                      accept="image/*"
+                      hidden
+                      onChange={handleImageFileChange}
+                    />
+                  </Button>
+                  {imagePreviewUrl && (
+                    <Button
+                      type="button"
+                      color="error"
+                      variant="outlined"
+                      startIcon={<DeleteIcon />}
+                      onClick={clearImage}
+                    >
+                      Remove
+                    </Button>
+                  )}
+                  <Typography
+                    variant="body2"
+                    sx={{ color: errors.imageUrl ? "error.main" : "text.secondary" }}
+                  >
+                    {errors.imageUrl ||
+                      imageFileName ||
+                      (imagePreviewUrl ? "Current article image selected" : "No image selected")}
+                  </Typography>
+                </Stack>
+                {imagePreviewUrl && (
+                  <Box
+                    sx={{
+                      mt: 1.5,
+                      width: "100%",
+                      maxWidth: 280,
+                      aspectRatio: "16 / 9",
+                      borderRadius: 1,
+                      overflow: "hidden",
+                      border: "1px solid",
+                      borderColor: "divider",
+                      bgcolor: "background.default",
+                    }}
+                  >
+                    <Box
+                      component="img"
+                      src={imagePreviewUrl}
+                      alt="Selected article"
+                      sx={{
+                        display: "block",
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                      }}
+                    />
+                  </Box>
+                )}
+              </Box>
               <TextField
                 name="content"
                 label="Content (Paragraphs)"
@@ -470,8 +602,8 @@ const DashArticlesPage = () => {
           </DialogContent>
           <DialogActions sx={{ px: 3, py: 2 }}>
             <Button onClick={closeModal}>Cancel</Button>
-            <Button type="submit" variant="contained">
-              {modal.id ? "Save Changes" : "Add Article"}
+            <Button type="submit" variant="contained" disabled={saving}>
+              {saving ? "Saving..." : modal.id ? "Save Changes" : "Add Article"}
             </Button>
           </DialogActions>
         </Box>

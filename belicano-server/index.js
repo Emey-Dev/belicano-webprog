@@ -3,7 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const bodyParser = require('body-parser');
-const jsonParser = bodyParser.json();
+const jsonParser = bodyParser.json({ limit: '10mb' });
 const connectDB = require('./config/db');
 const userRoutes = require('./routes/userRoutes');
 const articleRoutes = require('./routes/articleRoutes');
@@ -13,10 +13,10 @@ const app = express();
 
 connectDB();
 
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
 
 app.use(jsonParser);
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cors());
 
 const corsOptions = {
@@ -45,6 +45,7 @@ app.use((req, res, next) => {
 
 app.use('/api/users', userRoutes);
 app.use('/api/articles', articleRoutes);
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.use((err, req, res, next) => {
   console.error(err.stack);

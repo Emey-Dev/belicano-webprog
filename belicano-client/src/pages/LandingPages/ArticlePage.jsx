@@ -56,9 +56,15 @@ function ArticlePage() {
     );
   }
   
-  const imageUrl = article.imageUrl && !article.imageUrl.startsWith('/') 
-    ? '/' + article.imageUrl 
-    : article.imageUrl;
+  const normalizeImageUrl = (url) => {
+    if (!url) return '';
+    if (/^(https?:|data:|blob:)/i.test(url) || url.startsWith('/')) {
+      return url;
+    }
+    return `/${url}`;
+  };
+
+  const imageUrl = normalizeImageUrl(article.imageUrl);
 
   return (
     <div className="flex w-full flex-col gap-6">

@@ -5,11 +5,13 @@ const {
   createArticle,
   updateArticle,
   deleteArticle,
+  uploadArticleImage,
 } = require('../controllers/articleController');
 
 const router = express.Router();
 
 router.route('/').get(getArticles).post(createArticle);
+router.route('/upload-image').post(uploadArticleImage);
 router.route('/slug/:slug').get(getArticleBySlug);
 router.route('/:id').put(updateArticle).delete(deleteArticle);
 
