@@ -58,6 +58,7 @@ const DashArticlesPage = () => {
   const [errors, setErrors] = useState({});
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
+  const [contentRaw, setContentRaw] = useState("");
 
   const loadArticles = async () => {
     try {
@@ -113,8 +114,12 @@ const DashArticlesPage = () => {
         imageUrl: article.imageUrl,
         content: Array.isArray(article.content) ? article.content : [],
       });
+      setContentRaw(
+        Array.isArray(article.content) ? article.content.join("\n\n") : ""
+      );
     } else {
       setForm(blankForm);
+      setContentRaw("");
     }
     setErrors({});
   };
@@ -122,6 +127,7 @@ const DashArticlesPage = () => {
   const closeModal = () => {
     setModal({ open: false, id: null });
     setForm(blankForm);
+    setContentRaw("");
     setErrors({});
   };
 
@@ -144,10 +150,6 @@ const DashArticlesPage = () => {
 
     if (!form.title.trim()) {
       nextErrors.title = "Title is required.";
-    }
-
-    if (!form.imageUrl.trim()) {
-      nextErrors.imageUrl = "Image URL is required.";
     }
 
     if (!form.content || form.content.length === 0) {
@@ -419,7 +421,7 @@ const DashArticlesPage = () => {
               />
               <TextField {...fieldProps("title", "Title")} />
               <TextField
-                {...fieldProps("imageUrl", "Image URL", {
+                {...fieldProps("imageUrl", "Image URL (optional)", {
                   placeholder: "/assets/images/article-image.jpg",
                   helperText: "Public path to image in public/assets/images/ folder",
                 })}
@@ -427,16 +429,14 @@ const DashArticlesPage = () => {
               <TextField
                 name="content"
                 label="Content (Paragraphs)"
-                value={(form.content || []).join("\n\n")}
+                value={contentRaw}
                 onChange={(e) => {
+                  setContentRaw(e.target.value);
                   const paragraphs = e.target.value
                     .split(/\n\n+/)
                     .map((p) => p.trim())
                     .filter(Boolean);
-                  setForm((prev) => ({
-                    ...prev,
-                    content: paragraphs,
-                  }));
+                  setForm((prev) => ({ ...prev, content: paragraphs }));
                   if (errors.content) {
                     setErrors((prev) => ({ ...prev, content: "" }));
                   }
