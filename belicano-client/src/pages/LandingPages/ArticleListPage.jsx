@@ -1,6 +1,34 @@
+import { useState, useEffect } from "react";
 import Button from "../../components/Button";
+import { fetchArticles, mapArticleFromApi } from "../../services/ArticleService";
 
 const ArticleListPage = () => {
+  const [articles, setArticles] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const loadArticles = async () => {
+      try {
+        setLoading(true);
+        setError("");
+        const { data } = await fetchArticles();
+        const activeArticles = (data?.articles ?? [])
+          .filter((article) => article.isActive)
+          .map(mapArticleFromApi);
+        setArticles(activeArticles);
+      } catch (err) {
+        console.error("Failed to load articles:", err);
+        setError("Failed to load articles. Please try again later.");
+        setArticles([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadArticles();
+  }, []);
+
   return (
     <div className="flex w-full flex-col gap-6">
       <section className="border-y-2 border-zinc-900 bg-zinc-50 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
@@ -8,10 +36,10 @@ const ArticleListPage = () => {
           Articles
         </p>
         <h1 className="max-w-xl text-3xl font-bold leading-tight text-zinc-900 sm:text-4xl">
-          Featured languages that I have used to develop projects.
+          Featured Articles and Languages
         </h1>
         <p className="mt-4 max-w-lg text-sm leading-7 text-zinc-600 sm:text-base">
-          Some of the languages I have used are listed below.
+          Explore articles about the languages and technologies I use to develop projects.
         </p>
         <div className="mt-6">
           <Button to="/">Back Home</Button>
@@ -24,105 +52,51 @@ const ArticleListPage = () => {
             Featured Articles
           </p>
           <h2 className="mt-2 text-2xl font-semibold text-zinc-900">
-            My most used programming languages.
+            {loading ? "Loading articles..." : `${articles.length} Articles Available`}
           </h2>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          <article className="rounded-3xl border-2 border-zinc-900 bg-zinc-100 p-4">
-            <div className="flex aspect-4/3 items-center justify-center rounded-[1.25rem] bg-zinc-200 overflow-hidden">
-              <img
-                src="src/assets/images/React.png"
-                alt="React.js"
-                className="h-full w-full object-cover"
-              />
-            </div>
-            <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.24em] text-zinc-500">
-              Article 01
-            </p>
-            <h3 className="mt-2 text-lg font-semibold text-zinc-900">
-              React.js
-            </h3>
-            <p className="mt-3 text-sm leading-6 text-zinc-600">
-              React.js is a JavaScript library used for building modern web user
-              interfaces. It focuses on creating reusable components and
-              efficiently updating the UI when data changes, making it ideal for
-              dynamic applications like dashboards and single-page apps.
-            </p>
-            <Button to="/articles/react" className="mt-4">
-              Read More
-            </Button>
-          </article>
-
-          <article className="rounded-3xl border-2 border-zinc-900 bg-zinc-100 p-4">
-            <div className="flex aspect-4/3 items-center justify-center rounded-[1.25rem] bg-zinc-200 overflow-hidden">
-              <img
-                src="src/assets/images/Java.avif"
-                alt="Java"
-                className="h-full w-full object-cover"
-              />
-            </div>
-            <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.24em] text-zinc-500">
-              Article 02
-            </p>
-            <h3 className="mt-2 text-lg font-semibold text-zinc-900">Java</h3>
-            <p className="mt-3 text-sm leading-6 text-zinc-600">
-              Java is a general-purpose, object-oriented programming language
-              used for building a wide range of applications, including Android
-              apps and backend systems.
-            </p>
-            <Button to="/articles/java" className="mt-4">
-              Read More
-            </Button>
-          </article>
-
-          <article className="rounded-3xl border-2 border-zinc-900 bg-zinc-100 p-4">
-            <div className="flex aspect-4/3 items-center justify-center rounded-[1.25rem] bg-zinc-200 overflow-hidden">
-              <img
-                src="src/assets/images/Css.png"
-                alt="CSS"
-                className="h-full w-full object-cover"
-              />
-            </div>
-            <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.24em] text-zinc-500">
-              Article 03
-            </p>
-            <h3 className="mt-2 text-lg font-semibold text-zinc-900">CSS</h3>
-            <p className="mt-3 text-sm leading-6 text-zinc-600">
-              CSS (Cascading Style Sheets) is used to style and design web
-              pages, controlling things like colors, fonts, spacing, and layout
-              to make websites visually appealing and consistent.
-            </p>
-            <Button to="/articles/css" className="mt-4">
-              Read More
-            </Button>
-          </article>
-
-          <article className="rounded-3xl border-2 border-zinc-900 bg-zinc-100 p-4">
-            <div className="flex aspect-4/3 items-center justify-center rounded-[1.25rem] bg-zinc-200 overflow-hidden">
-              <img
-                src="src/assets/images/Flutter.jpg"
-                alt="Flutter"
-                className="h-full w-full object-cover"
-              />
-            </div>
-            <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.24em] text-zinc-500">
-              Article 04
-            </p>
-            <h3 className="mt-2 text-lg font-semibold text-zinc-900">
-              Flutter
-            </h3>
-            <p className="mt-3 text-sm leading-6 text-zinc-600">
-              Flutter is a UI framework developed by Google used for building
-              cross-platform mobile applications. It allows developers to create
-              apps for both Android and iOS using a single codebase, focusing on
-              fast performance and smooth, responsive user interfaces.
-            </p>
-            <Button to="/articles/flutter" className="mt-4">
-              Read More
-            </Button>
-          </article>
-        </div>
+        {error ? (
+          <div className="rounded-lg bg-red-100 p-4 text-red-700">
+            <p>{error}</p>
+          </div>
+        ) : articles.length > 0 ? (
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            {articles.map((article) => (
+              <article
+                key={article._id || article.name}
+                className="rounded-3xl border-2 border-zinc-900 bg-zinc-100 p-4 flex flex-col"
+              >
+                <div className="flex aspect-4/3 items-center justify-center rounded-[1.25rem] bg-zinc-200 overflow-hidden">
+                  <img
+                    src={article.imageUrl}
+                    alt={article.title}
+                    className="h-full w-full object-cover"
+                    onError={(e) => {
+                      e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300'%3E%3Crect fill='%23ddd' width='400' height='300'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%23999' font-size='24'%3EImage not found%3C/text%3E%3C/svg%3E";
+                    }}
+                  />
+                </div>
+                <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.24em] text-zinc-500 truncate">
+                  {article.name}
+                </p>
+                <h3 className="mt-2 text-lg font-semibold text-zinc-900 line-clamp-2">
+                  {article.title}
+                </h3>
+                <p className="mt-3 text-sm leading-6 text-zinc-600 flex-grow line-clamp-3">
+                  {article.description || "No description available."}
+                </p>
+                <Button to={`/articles/${article.name}`} className="mt-4">
+                  Read More
+                </Button>
+              </article>
+            ))}
+          </div>
+        ) : !loading ? (
+          <div className="rounded-lg bg-blue-100 p-4 text-blue-700">
+            <p>No articles available yet. Check back soon!</p>
+          </div>
+        ) : null}
       </section>
     </div>
   );

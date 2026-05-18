@@ -1,6 +1,120 @@
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { createUser } from "../../services/UserService";
 
 const SignUpPage = () => {
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    age: "",
+    gender: "",
+    contactNumber: "",
+    address: "",
+    username: "",
+  });
+
+  const [errors, setErrors] = useState({});
+  const [apiError, setApiError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+    const email = formData.email.trim().toLowerCase();
+    const password = formData.password;
+    const confirmPassword = formData.confirmPassword;
+    const age = String(formData.age).trim();
+    const contactNumber = String(formData.contactNumber).trim();
+
+    if (!formData.firstName.trim()) newErrors.firstName = "First name is required.";
+    if (!formData.lastName.trim()) newErrors.lastName = "Last name is required.";
+    if (!email) newErrors.email = "Email is required.";
+    if (!password) newErrors.password = "Password is required.";
+    if (!confirmPassword) newErrors.confirmPassword = "Please confirm your password.";
+    if (!age) newErrors.age = "Age is required.";
+    if (!formData.gender) newErrors.gender = "Gender is required.";
+    if (!contactNumber) newErrors.contactNumber = "Contact number is required.";
+    if (!formData.address.trim()) newErrors.address = "Address is required.";
+    if (!formData.username.trim()) newErrors.username = "Username is required.";
+
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      newErrors.email = "Please enter a valid email address.";
+    }
+
+    if (age && (!/^\d+$/.test(age) || Number(age) < 1 || Number(age) > 120)) {
+      newErrors.age = "Age must be a number between 1 and 120.";
+    }
+
+    if (contactNumber && (!/^\d+$/.test(contactNumber) || contactNumber.length !== 11)) {
+      newErrors.contactNumber = "Contact number must be exactly 11 digits.";
+    }
+
+    if (password && password.length < 8) {
+      newErrors.password = "Password must be at least 8 characters long.";
+    }
+
+    if (password && confirmPassword && password !== confirmPassword) {
+      newErrors.confirmPassword = "Passwords do not match.";
+    }
+
+    if (formData.username.trim().includes(" ")) {
+      newErrors.username = "Username must not contain spaces.";
+    }
+
+    return newErrors;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const newErrors = validateForm();
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    setLoading(true);
+    setApiError("");
+
+    try {
+      await createUser({
+        firstName: formData.firstName.trim(),
+        lastName: formData.lastName.trim(),
+        email: formData.email.trim().toLowerCase(),
+        password: formData.password,
+        age: formData.age,
+        gender: formData.gender,
+        contactNumber: formData.contactNumber,
+        address: formData.address.trim(),
+        username: formData.username.trim(),
+        type: "editor", 
+        isActive: true,
+      });
+
+      alert("Account created successfully! Please log in.");
+      navigate("/auth/signin");
+    } catch (error) {
+      console.error("Sign up failed:", error);
+      setApiError(error.response?.data?.message || "Sign up failed. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div
       className="w-full rounded-2xl p-8 shadow-xl"
@@ -42,7 +156,13 @@ const SignUpPage = () => {
         </p>
       </div>
 
-      <form className="space-y-4">
+      <form className="space-y-4" onSubmit={handleSubmit}>
+        {apiError && (
+          <div className="p-3 rounded-lg bg-red-100 border border-red-300">
+            <p className="text-sm text-red-700">{apiError}</p>
+          </div>
+        )}
+
         <div className="grid grid-cols-2 gap-3">
           <div>
             <label
@@ -55,10 +175,14 @@ const SignUpPage = () => {
             <input
               id="first-name"
               type="text"
+              name="firstName"
               placeholder="John"
               autoComplete="given-name"
+              value={formData.firstName}
+              onChange={handleChange}
               className="w-full rounded-xl border-2 border-zinc-100 bg-zinc-50 px-4 py-3.5 text-sm text-black outline-none transition-all placeholder:text-zinc-300 hover:border-zinc-200 focus:border-yellow-400 focus:bg-white focus:ring-0"
             />
+            {errors.firstName && <p className="text-red-500 text-xs mt-1">{errors.firstName}</p>}
           </div>
           <div>
             <label
@@ -71,10 +195,14 @@ const SignUpPage = () => {
             <input
               id="last-name"
               type="text"
+              name="lastName"
               placeholder="Doe"
               autoComplete="family-name"
+              value={formData.lastName}
+              onChange={handleChange}
               className="w-full rounded-xl border-2 border-zinc-100 bg-zinc-50 px-4 py-3.5 text-sm text-black outline-none transition-all placeholder:text-zinc-300 hover:border-zinc-200 focus:border-yellow-400 focus:bg-white focus:ring-0"
             />
+            {errors.lastName && <p className="text-red-500 text-xs mt-1">{errors.lastName}</p>}
           </div>
         </div>
 
@@ -95,92 +223,199 @@ const SignUpPage = () => {
             <input
               id="signup-email"
               type="email"
+              name="email"
               placeholder="you@example.com"
               autoComplete="email"
+              value={formData.email}
+              onChange={handleChange}
               className="w-full rounded-xl border-2 border-zinc-100 bg-zinc-50 pl-11 pr-4 py-3.5 text-sm text-black outline-none transition-all placeholder:text-zinc-300 hover:border-zinc-200 focus:border-yellow-400 focus:bg-white focus:ring-0"
             />
+          </div>
+          {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label
+              htmlFor="signup-password"
+              className="block text-xs font-bold uppercase tracking-widest mb-2"
+              style={{ color: "#0a1628" }}
+            >
+              Password
+            </label>
+            <div className="relative">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                </svg>
+              </span>
+              <input
+                id="signup-password"
+                type="password"
+                name="password"
+                placeholder="••••••••"
+                autoComplete="new-password"
+                value={formData.password}
+                onChange={handleChange}
+                className="w-full rounded-xl border-2 border-zinc-100 bg-zinc-50 pl-11 pr-4 py-3.5 text-sm text-black outline-none transition-all placeholder:text-zinc-300 hover:border-zinc-200 focus:border-yellow-400 focus:bg-white focus:ring-0"
+              />
+            </div>
+            {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
+          </div>
+          <div>
+            <label
+              htmlFor="confirm-password"
+              className="block text-xs font-bold uppercase tracking-widest mb-2"
+              style={{ color: "#0a1628" }}
+            >
+              Confirm Password
+            </label>
+            <div className="relative">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                </svg>
+              </span>
+              <input
+                id="confirm-password"
+                type="password"
+                name="confirmPassword"
+                placeholder="••••••••"
+                autoComplete="new-password"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                className="w-full rounded-xl border-2 border-zinc-100 bg-zinc-50 pl-11 pr-4 py-3.5 text-sm text-black outline-none transition-all placeholder:text-zinc-300 hover:border-zinc-200 focus:border-yellow-400 focus:bg-white focus:ring-0"
+              />
+            </div>
+            {errors.confirmPassword && <p className="text-red-500 text-xs mt-1">{errors.confirmPassword}</p>}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label
+              htmlFor="age"
+              className="block text-xs font-bold uppercase tracking-widest mb-2"
+              style={{ color: "#0a1628" }}
+            >
+              Age
+            </label>
+            <input
+              id="age"
+              type="number"
+              name="age"
+              placeholder="25"
+              value={formData.age}
+              onChange={handleChange}
+              className="w-full rounded-xl border-2 border-zinc-100 bg-zinc-50 px-4 py-3.5 text-sm text-black outline-none transition-all placeholder:text-zinc-300 hover:border-zinc-200 focus:border-yellow-400 focus:bg-white focus:ring-0"
+            />
+            {errors.age && <p className="text-red-500 text-xs mt-1">{errors.age}</p>}
+          </div>
+          <div>
+            <label
+              htmlFor="gender"
+              className="block text-xs font-bold uppercase tracking-widest mb-2"
+              style={{ color: "#0a1628" }}
+            >
+              Gender
+            </label>
+            <select
+              id="gender"
+              name="gender"
+              value={formData.gender}
+              onChange={handleChange}
+              className="w-full rounded-xl border-2 border-zinc-100 bg-zinc-50 px-4 py-3.5 text-sm text-black outline-none transition-all hover:border-zinc-200 focus:border-yellow-400 focus:bg-white focus:ring-0"
+            >
+              <option value="">Select Gender</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="other">Other</option>
+            </select>
+            {errors.gender && <p className="text-red-500 text-xs mt-1">{errors.gender}</p>}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label
+              htmlFor="contact"
+              className="block text-xs font-bold uppercase tracking-widest mb-2"
+              style={{ color: "#0a1628" }}
+            >
+              Contact Number
+            </label>
+            <input
+              id="contact"
+              type="tel"
+              name="contactNumber"
+              placeholder="09123456789"
+              value={formData.contactNumber}
+              onChange={handleChange}
+              className="w-full rounded-xl border-2 border-zinc-100 bg-zinc-50 px-4 py-3.5 text-sm text-black outline-none transition-all placeholder:text-zinc-300 hover:border-zinc-200 focus:border-yellow-400 focus:bg-white focus:ring-0"
+            />
+            {errors.contactNumber && <p className="text-red-500 text-xs mt-1">{errors.contactNumber}</p>}
+          </div>
+          <div>
+            <label
+              htmlFor="username"
+              className="block text-xs font-bold uppercase tracking-widest mb-2"
+              style={{ color: "#0a1628" }}
+            >
+              Username
+            </label>
+            <input
+              id="username"
+              type="text"
+              name="username"
+              placeholder="johndoe"
+              value={formData.username}
+              onChange={handleChange}
+              className="w-full rounded-xl border-2 border-zinc-100 bg-zinc-50 px-4 py-3.5 text-sm text-black outline-none transition-all placeholder:text-zinc-300 hover:border-zinc-200 focus:border-yellow-400 focus:bg-white focus:ring-0"
+            />
+            {errors.username && <p className="text-red-500 text-xs mt-1">{errors.username}</p>}
           </div>
         </div>
 
         <div>
           <label
-            htmlFor="signup-password"
+            htmlFor="address"
             className="block text-xs font-bold uppercase tracking-widest mb-2"
             style={{ color: "#0a1628" }}
           >
-            Password
+            Address
           </label>
-          <div className="relative">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400">
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
-              </svg>
-            </span>
-            <input
-              id="signup-password"
-              type="password"
-              placeholder="••••••••"
-              autoComplete="new-password"
-              className="w-full rounded-xl border-2 border-zinc-100 bg-zinc-50 pl-11 pr-4 py-3.5 text-sm text-black outline-none transition-all placeholder:text-zinc-300 hover:border-zinc-200 focus:border-yellow-400 focus:bg-white focus:ring-0"
-            />
-          </div>
+          <textarea
+            id="address"
+            name="address"
+            placeholder="123 Main Street, City, Country"
+            rows="3"
+            value={formData.address}
+            onChange={handleChange}
+            className="w-full rounded-xl border-2 border-zinc-100 bg-zinc-50 px-4 py-3.5 text-sm text-black outline-none transition-all placeholder:text-zinc-300 hover:border-zinc-200 focus:border-yellow-400 focus:bg-white focus:ring-0"
+          />
+          {errors.address && <p className="text-red-500 text-xs mt-1">{errors.address}</p>}
         </div>
 
         <button
           type="submit"
-          className="w-full rounded-xl py-4 text-sm font-bold uppercase tracking-widest text-white transition-all active:scale-95 mt-2"
+          disabled={loading}
+          className="w-full rounded-xl py-4 text-sm font-bold uppercase tracking-widest text-white transition-all active:scale-95 mt-2 disabled:opacity-50"
           style={{ backgroundColor: "#0a1628", letterSpacing: "0.18em" }}
-          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#D4AF37")}
-          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#0a1628")}
+          onMouseEnter={(e) => !loading && (e.currentTarget.style.backgroundColor = "#D4AF37")}
+          onMouseLeave={(e) => !loading && (e.currentTarget.style.backgroundColor = "#0a1628")}
         >
-          Create Account →
+          {loading ? "Creating Account..." : "Create Account →"}
         </button>
 
-        <div className="relative py-1">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-zinc-100" />
-          </div>
-          <div className="relative flex justify-center">
-            <span className="bg-white px-4 text-xs uppercase tracking-widest text-zinc-300">
-              or continue with
-            </span>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-3">
-          <button
-            type="button"
-            className="flex items-center justify-center gap-2 rounded-xl border-2 border-zinc-100 bg-white py-3 text-xs font-bold uppercase tracking-wider text-zinc-700 transition-all hover:border-zinc-300 hover:shadow-sm active:scale-95"
-          >
-            <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none">
-              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-            </svg>
-            Google
-          </button>
-          <button
-            type="button"
-            className="flex items-center justify-center gap-2 rounded-xl border-2 border-zinc-100 bg-white py-3 text-xs font-bold uppercase tracking-wider text-zinc-700 transition-all hover:border-zinc-300 hover:shadow-sm active:scale-95"
-          >
-            <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
-            </svg>
-            Apple
-          </button>
-        </div>
-
         <p className="text-center text-xs text-zinc-300 pt-1">
-          By signing up you agree to our{" "}
-          <span className="text-zinc-500 underline underline-offset-2 cursor-pointer hover:text-black transition-colors">
-            Terms
-          </span>{" "}
-          and{" "}
-          <span className="text-zinc-500 underline underline-offset-2 cursor-pointer hover:text-black transition-colors">
-            Privacy Policy
-          </span>
-          .
+          Already have an account?{" "}
+          <Link
+            to="/auth/signin"
+            className="font-semibold underline underline-offset-2 decoration-yellow-400 hover:decoration-black transition-all"
+            style={{ color: "#0a1628" }}
+          >
+            Log in
+          </Link>
         </p>
       </form>
     </div>

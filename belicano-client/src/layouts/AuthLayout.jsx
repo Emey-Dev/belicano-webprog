@@ -16,7 +16,7 @@ const AuthLayout = () => {
             }}
           />
           <img
-            src="/src/assets/images/Logo.svg"
+            src="/assets/images/Logo.svg"
             alt="Logo"
             className="relative z-10 w-full object-contain"
             style={{ maxWidth: "24rem" }}

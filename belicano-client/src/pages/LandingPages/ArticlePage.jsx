@@ -1,12 +1,49 @@
+import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import Button from '../../components/Button.jsx';
-import articles from '../../data/article-content.js';
+import { fetchArticleBySlug, mapArticleFromApi } from '../../services/ArticleService';
 
-function ArticlePage () {
+function ArticlePage() {
   const { name } = useParams();
-  const article = articles.find(article => article.name === name);
+  const [article, setArticle] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  if (!article) {
+  useEffect(() => {
+    const loadArticle = async () => {
+      try {
+        setLoading(true);
+        setError('');
+        const { data } = await fetchArticleBySlug(name);
+        if (data?.article) {
+          setArticle(mapArticleFromApi(data.article));
+        } else {
+          setError('Article not found');
+        }
+      } catch (err) {
+        console.error('Failed to load article:', err);
+        setError('Article not found');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadArticle();
+  }, [name]);
+
+  if (loading) {
+    return (
+      <div className="flex w-full flex-col gap-6">
+        <section className="border-y-2 border-zinc-900 bg-zinc-50 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+          <div className="mx-auto max-w-3xl">
+            <h1 className="text-3xl font-bold text-zinc-900">Loading...</h1>
+          </div>
+        </section>
+      </div>
+    );
+  }
+
+  if (!article || error) {
     return (
       <div className="flex w-full flex-col gap-6">
         <section className="border-y-2 border-zinc-900 bg-zinc-50 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
@@ -18,6 +55,10 @@ function ArticlePage () {
       </div>
     );
   }
+  
+  const imageUrl = article.imageUrl && !article.imageUrl.startsWith('/') 
+    ? '/' + article.imageUrl 
+    : article.imageUrl;
 
   return (
     <div className="flex w-full flex-col gap-6">
@@ -40,13 +81,27 @@ function ArticlePage () {
 
       <section className="border-y-2 border-zinc-900 bg-zinc-50 px-4 py-6 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-3xl">
-          <div className="flex aspect-4/3 items-center justify-center rounded-[1.25rem] bg-zinc-200 mb-8">
-            <img src={article.image} className="h-full w-full border-2 border-zinc-300 bg-zinc-100" />
-
-          </div>
+          {imageUrl ? (
+            <div className="flex aspect-4/3 items-center justify-center rounded-[1.25rem] bg-zinc-200 mb-8">
+              <img 
+                src={imageUrl} 
+                alt={article.title}
+                className="h-full w-full border-2 border-zinc-300 bg-zinc-100 object-cover" 
+                onError={(e) => {
+                  console.warn('Image failed to load:', imageUrl);
+                  e.target.style.display = "none";
+                  e.target.parentElement.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#999;font-size:14px;">Image not found: ' + imageUrl + '</div>';
+                }}
+              />
+            </div>
+          ) : (
+            <div className="flex aspect-4/3 items-center justify-center rounded-[1.25rem] bg-zinc-200 mb-8 text-zinc-500">
+              No image available
+            </div>
+          )}
 
           <div className="prose prose-sm max-w-none space-y-4 text-zinc-700">
-            {article.content.map((paragraph, index) => (
+            {(article.content || []).map((paragraph, index) => (
               <p key={index} className="text-base leading-7 text-zinc-700 whitespace-pre-wrap">
                 {paragraph}
               </p>

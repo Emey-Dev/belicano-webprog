@@ -1,6 +1,34 @@
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { loginUser } from "../../services/UserService";
 
 const SignInPage = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setError("");
+    try {
+      const { data } = await loginUser({ email, password });
+      console.log("Login successful:", data);
+
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("firstName", data.firstName);
+      localStorage.setItem("type", data.type);
+      localStorage.setItem("userRole", data.type); 
+
+      navigate("/dashboard", {
+        state: { firstName: data.firstName, type: data.type },
+      });
+    } catch (err) {
+      console.error("Login failed:", err.response?.data?.message || err.message);
+      setError(err.response?.data?.message || "Login failed. Please try again.");
+    }
+  };
+
   return (
     <div
       className="w-full rounded-2xl p-8 shadow-xl"
@@ -42,7 +70,11 @@ const SignInPage = () => {
         </p>
       </div>
 
-      <form className="space-y-4">
+      {error && (
+        <p className="text-sm text-red-500 mb-4 font-medium">{error}</p>
+      )}
+
+      <form className="space-y-4" onSubmit={handleLogin}>
         <div>
           <label
             htmlFor="signin-email"
@@ -62,6 +94,9 @@ const SignInPage = () => {
               type="email"
               placeholder="you@example.com"
               autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
               className="w-full rounded-xl border-2 border-zinc-100 bg-zinc-50 pl-11 pr-4 py-3.5 text-sm text-black outline-none transition-all placeholder:text-zinc-300 hover:border-zinc-200 focus:border-yellow-400 focus:bg-white focus:ring-0"
             />
           </div>
@@ -97,6 +132,9 @@ const SignInPage = () => {
               type="password"
               placeholder="••••••••"
               autoComplete="current-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
               className="w-full rounded-xl border-2 border-zinc-100 bg-zinc-50 pl-11 pr-4 py-3.5 text-sm text-black outline-none transition-all placeholder:text-zinc-300 hover:border-zinc-200 focus:border-yellow-400 focus:bg-white focus:ring-0"
             />
           </div>

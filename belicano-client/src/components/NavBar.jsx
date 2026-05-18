@@ -17,12 +17,11 @@ const navLinkClassName = ({ isActive }) =>
 const NavBar = () => {
   return (
     <header className="fixed inset-x-0 top-0 z-50 bg-zinc-950/95 backdrop-blur-md border-b border-yellow-600/70 overflow-visible">
-      {/* Enhancement #1 */}
       <div className="h-px w-full bg-gradient-to-r from-transparent via-yellow-500/60 to-transparent" />
       <div className="mx-auto flex max-w-6xl h-20 items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
         <NavLink to="/" className="group flex items-center gap-3">
           <img
-            src="src/assets/images/Logo.svg"
+            src="/assets/images/Logo.svg"
             alt="Logo"
             className="h-22 w-auto object-contain"
           />
@@ -42,7 +41,7 @@ const NavBar = () => {
             to="/auth/signin"
             className="rounded-full border-2 border-yellow-600/70 bg-yellow-600/10 px-5 py-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-yellow-500 transition hover:bg-yellow-600/20 hover:text-yellow-400"
           >
-            Sign Out
+            Sign In
           </NavLink>
         </nav>
       </div>

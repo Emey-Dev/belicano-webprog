@@ -1,7 +1,7 @@
-import react from "/src/assets/images/React.png";
-import java from "/src/assets/images/Java.avif";
-import css from "/src/assets/images/Css.png";
-import flutter from "/src/assets/images/Flutter.jpg";
+import react from "/assets/images/React.png";
+import java from "/assets/images/Java.avif";
+import css from "/assets/images/Css.png";
+import flutter from "/assets/images/Flutter.jpg";
 
 const articles = [
   {
